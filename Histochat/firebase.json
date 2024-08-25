@@ -1,6 +1,7 @@
 {
   "hosting": {
-    "public": "/dist",
+    "site": "histochat-bbf8e-c5c62",
+    "public": "dist",
     "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
     "rewrites": [
       {
