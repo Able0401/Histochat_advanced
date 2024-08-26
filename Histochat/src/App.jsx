@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import {CallGPT} from "./api/gpt"
 import Userinput from './components/Userinput';
 import styled from 'styled-components';
@@ -7,7 +7,6 @@ import { collection, addDoc} from "firebase/firestore";
 
 function App() {
   const [chatlog, setChatlog] = useState([]);
-  const [data, setData] = useState("");
   
   const [user_name, setUserName] = useState("");
   const [user_interest, setUserInterest] = useState("");
@@ -25,8 +24,6 @@ function App() {
 
   const [loading, setLoading] = useState(false);
   
-  var chat_num = 1;
-
   const handleClickAPICall = async (userInput) => {
     try {
       setLoading(true);
@@ -37,7 +34,6 @@ function App() {
         input: userInput,
         output: message,
       });
-      chat_num +=1;
     } catch (error) {
       console.error(error);
     } finally { 
