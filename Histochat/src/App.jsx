@@ -13,11 +13,10 @@ function App() {
   const [user_knowledge, setUserKnowledge] = useState("");
   const [user_name_flag, setUserNameFlag] = useState(false);
 
-  const handleChat = (user1, user2, num) => {
+  const handleChat = (message1, message2) => {
     const chat = [
-      {chat_number : num},
-      { user: user_name, message: user1 },
-      { user: "세종대왕", message: user2 },
+      { user: user_name, message: message1 },
+      { user: "세종대왕", message: message2 },
     ];
     setChatlog(chatlog.concat(chat));
   };
@@ -28,12 +27,16 @@ function App() {
     try {
       setLoading(true);
       const message = await CallGPT({ prompt: userInput, pastchatlog: chatlog , user_name: user_name, user_interest: user_interest, user_knowledge: user_knowledge});
-      handleChat(userInput, message);
-      addDoc(collection(db, user_name+"Advanced"), {
-        chat_number : (chatlog.length-1)/3 + 1,
+      if (chatlog.length === 0) {
+        handleChat("", message);
+      } else {
+        handleChat(userInput, message);
+        addDoc(collection(db, user_name+"Advanced"), {
+        chat_number : (chatlog.length)/2,
         input: userInput,
         output: message,
       });
+      }
     } catch (error) {
       console.error(error);
     } finally { 
@@ -55,39 +58,43 @@ function App() {
       alert("이름을 입력해주세요");
       
     } else {
-      setChatlog(chatlog.concat(user_name + "\n"));
       setUserNameFlag(true);
       addDoc(collection(db, user_name+"Advanced"), {
         name: user_name,
         interest: user_interest,
         knowledge: user_knowledge
       });
+      handleClickAPICall("안녕하세요");
     }
   };
 
 
   const chatlogArray = chatlog.map((chat, index) => {
+    if (chat.message === "") {
+      return null;
+    }
     return (
-      <div key={index} style={{ textAlign: chat.user === user_name ? "left" : "right" }}>
+      <div key={index} style={{ textAlign: chat.user === user_name ? "right" : "left", marginRight: "20px"}}>
         <div style={{ fontWeight: "bold", marginBottom: "5px" }}>{chat.user}</div>
-        <div style={{ background: chat.user === user_name ? "#e6e6e6" : "#f2f2f2", padding: "10px", borderRadius: "10px", display: "inline-block" }}>{chat.message}</div>
+        <div style={{ background: chat.user === user_name ? "#C3C1C1" : "#8D8C8C", color : chat.user === user_name ? "#FFFFFF" : "#000000"
+           ,padding: "10px", borderRadius: "10px", display: "inline-block", whiteSpace: "pre-line"}}>{chat.message}</div>
         <br />
       </div>
     );
   });
   return (
-    <>
-    <h1>Histochat</h1>
-      {user_name_flag ? (
+    <div style={{display: "flex", justifyContent: "center", alignItems: "center"}}>
+    {user_name_flag ? (
         <AppConatiner>
-          <div className="chatlog-container" style={{ border: "1px solid #ccc", borderRadius: "5px", padding: "10px", maxHeight: "1000px", overflowY: "scroll" }}>
-            <div className="chatlog">{chatlogArray}</div>  
-          </div>
-          <br/>
-          <div className="input-container">
-            <Userinput isloading={loading} onSubmit={handleSubmit}/>
-          </div>
-        </AppConatiner>
+        <h1>Histochat</h1>
+        <div className="chatlog-container" style={{ border: "1px solid #ccc", borderRadius: "5px", padding: "10px", width : "600px", maxHeight: "1000px", overflowY: "scroll" }}>
+          <div className="chatlog">{chatlogArray}</div>  
+        </div>
+        <br/>
+        <div className="input-container" style={{width : "620px"}}>
+          <Userinput isloading={loading} onSubmit={handleSubmit} />
+        </div>
+      </AppConatiner>
       ) : (
         <div>
           <h3>이름 관심있는 드라마 종류, 역사 지식을 얼마나 아는지를 입력해주세요</h3>
@@ -105,7 +112,6 @@ function App() {
               <option value="뮤지컬">뮤지컬</option>
               <option value="범죄">범죄</option>
               <option value="사극">사극</option>
-              <option value="무협">무협</option>
               <option value="액션">액션</option>
               <option value="의학">의학</option>
               <option value="공포">공포</option>
@@ -125,7 +131,7 @@ function App() {
           <button onClick={handleUserName}>입장</button>
         </div>
       )}
-    </>
+    </div>
   )
 
 }
@@ -134,6 +140,8 @@ export default App;
 const AppConatiner = styled.div`
   padding: 20px 20px 20px 20px;
   display: flex;
+  justify-content: center;
+  align-items: center;
   flex-direction: column;
   max-width: 800px;
   width : 100%
