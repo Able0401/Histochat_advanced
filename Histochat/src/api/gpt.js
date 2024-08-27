@@ -1,22 +1,27 @@
 import { db } from "./firebasemodule.js";
+import { doc, getDoc } from "firebase/firestore";
 
 export const CallGPT = async ({
   prompt,
   pastchatlog,
   user_name,
-  user_interest,
-  user_knowledge,
   input_persona,
   input_learning_obejctive,
 }) => {
   const persona = input_persona;
   const learning_obejctive = input_learning_obejctive;
 
+  const docRef = doc(db, user_name + "Advanced", "Info");
+  const docSnap = await getDoc(docRef);
+
   const user_data = {
     name: user_name,
-    interest: user_interest,
-    knowledge: user_knowledge,
+    interest: docSnap.data().interest,
+    knowledge: docSnap.data().knowledge,
   };
+
+  console.log(user_data);
+
   const input = prompt;
 
   const chatlog = "이전대화: \n" + pastchatlog;
