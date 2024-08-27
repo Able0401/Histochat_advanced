@@ -2,21 +2,37 @@ import { useState } from 'react'
 import {CallGPT} from "./api/gpt"
 import Userinput from './components/Userinput';
 import styled from 'styled-components';
-import {db} from './api/firebase'
-import { collection, addDoc} from "firebase/firestore";
+import {db} from './api/firebasemodule';
+import {doc, addDoc, setDoc} from "firebase/firestore";
 
 function App() {
+  const persona = "세종대왕";
+  const learning_obejctive = "한글 창제의 역사적 배경 이해하기";
+  var [specific_learning_objective, setSpecificLearningObjective] = useState({
+    "한글 창제의 역사적 배경 이해하기": false,
+    "세종대왕이 한글을 창제하게 된 배경과 그 당시의 사회적, 문화적 상황을 설명할 수 있다.": false,
+    "한자 사용의 어려움과 그로 인한 일반 백성들의 생활 속 불편함을 설명할 수 있다.": false,
+    "한글 창제를 위한 집현전 학자들의 역할과 활동을 설명할 수 있다.": false,
+    "한글 창제 과정과 원리 분석하기": false,
+    "한글의 자음과 모음이 어떻게 만들어졌는지 그 원리를 이해하고 설명할 수 있다.": false,
+    "한글 창제 과정에서 겪었던 어려움과 그에 대한 해결책을 논의할 수 있다.": false,
+    "훈민정음 해례본의 주요 내용을 읽고 해석할 수 있다.": false,
+    "한글 창제의 역사적 의의와 현대적 중요성 평가하기": false,
+    "한글 창제가 당시와 현재 사회에 미친 영향을 분석할 수 있다.": false,
+    "한글 창제가 한국 문화와 정체성 형성에 어떤 기여를 했는지 설명할 수 있다.": false,
+    "한글의 과학적 원리를 현대적인 시각에서 재평가하고 그 중요성을 논의할 수 있다.": false,
+  });
+
   const [chatlog, setChatlog] = useState([]);
   
   const [user_name, setUserName] = useState("");
   const [user_interest, setUserInterest] = useState("");
-  const [user_knowledge, setUserKnowledge] = useState("");
   const [user_name_flag, setUserNameFlag] = useState(false);
 
   const handleChat = (message1, message2) => {
     const chat = [
       { user: user_name, message: message1 },
-      { user: "세종대왕", message: message2 },
+      { user: persona, message: message2 },
     ];
     setChatlog(chatlog.concat(chat));
   };
@@ -26,7 +42,7 @@ function App() {
   const handleClickAPICall = async (userInput) => {
     try {
       setLoading(true);
-      const message = await CallGPT({ prompt: userInput, pastchatlog: chatlog , user_name: user_name, user_interest: user_interest, user_knowledge: user_knowledge});
+      const message = await CallGPT({ prompt: userInput, pastchatlog: chatlog , user_name: user_name, user_interest: user_interest, user_knowledge : specific_learning_objective, input_persona : persona, input_learning_obejctive : learning_obejctive});
       if (chatlog.length === 0) {
         handleChat("", message);
       } else {
@@ -59,10 +75,10 @@ function App() {
       
     } else {
       setUserNameFlag(true);
-      addDoc(collection(db, user_name+"Advanced"), {
+      setDoc(doc(db, user_name + "Advanced", "Info"), {
         name: user_name,
         interest: user_interest,
-        knowledge: user_knowledge
+        knowledge: specific_learning_objective
       });
       handleClickAPICall("안녕하세요");
     }
@@ -115,16 +131,6 @@ function App() {
               <option value="액션">액션</option>
               <option value="의학">의학</option>
               <option value="공포">공포</option>
-            </select>
-          </div>
-          <br/>
-          <div>
-            <label htmlFor="knowledge">역사 지식 수준:</label>
-            <select id="knowledge" value={user_knowledge} onChange={(e) => setUserKnowledge(e.target.value)}>
-              <option value="">선택하세요</option>
-              <option value="초보">초보</option>
-              <option value="중급">중급</option>
-              <option value="고급">고급</option>
             </select>
           </div>
           <br/>
