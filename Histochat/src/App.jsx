@@ -7,21 +7,17 @@ import {doc, addDoc, setDoc, collection } from "firebase/firestore";
 
 function App() {
   const persona = "세종대왕";
-  const learning_obejctive = "한글 창제의 역사적 배경 이해하기";
+  const learning_obejctive = "훈민정음 창제에 관해 배우기";
   var [specific_learning_objective, setSpecificLearningObjective] = useState({
-    "한글 창제의 역사적 배경 이해하기": false,
-    "세종대왕이 한글을 창제하게 된 배경과 그 당시의 사회적, 문화적 상황을 설명할 수 있다.": false,
-    "한자 사용의 어려움과 그로 인한 일반 백성들의 생활 속 불편함을 설명할 수 있다.": false,
-    "한글 창제를 위한 집현전 학자들의 역할과 활동을 설명할 수 있다.": false,
-    "한글 창제 과정과 원리 분석하기": false,
-    "한글의 자음과 모음이 어떻게 만들어졌는지 그 원리를 이해하고 설명할 수 있다.": false,
-    "한글 창제 과정에서 겪었던 어려움과 그에 대한 해결책을 논의할 수 있다.": false,
-    "훈민정음 해례본의 주요 내용을 읽고 해석할 수 있다.": false,
-    "한글 창제의 역사적 의의와 현대적 중요성 평가하기": false,
-    "한글 창제가 당시와 현재 사회에 미친 영향을 분석할 수 있다.": false,
-    "한글 창제가 한국 문화와 정체성 형성에 어떤 기여를 했는지 설명할 수 있다.": false,
-    "한글의 과학적 원리를 현대적인 시각에서 재평가하고 그 중요성을 논의할 수 있다.": false,
+    "훈민정음 창제의 배경 배우기": [false, ""],
+    "훈민정음 창제의 목적 배우기": [false, ""],
+    "훈민정음 창제의 의의와 이로 인한 생활의 변화 배우기.": [false, ""]
   });
+  const quiz = {
+    "훈민정음의 창제 이유와 의미가 무엇인가?": "",
+    "훈민정음의 창제 목적은 무엇인가?": "",
+    "훈민정음이 창제된 이후 백성의 삶이 어떻게 바뀌었나": "",
+  };
 
   const [chatlog, setChatlog] = useState([]);
   
@@ -42,7 +38,7 @@ function App() {
   const handleClickAPICall = async (userInput) => {
     try {
       setLoading(true);
-      const message = await CallGPT({ prompt: userInput, pastchatlog: chatlog , user_name: user_name,input_persona : persona, input_learning_obejctive : learning_obejctive});
+      const message = await CallGPT({ prompt: userInput, pastchatlog: chatlog , user_name: user_name,input_persona : persona, input_learning_obejctive : learning_obejctive, quiz : quiz});
       if (chatlog.length === 0) {
         handleChat("", message);
       } else {
@@ -78,7 +74,8 @@ function App() {
       setDoc(doc(db, user_name + "Advanced", "Info"), {
         name: user_name,
         interest: user_interest,
-        knowledge: specific_learning_objective
+        knowledge: specific_learning_objective,
+        evaluation : {}
       });
       handleClickAPICall("안녕하세요");
     }
@@ -113,7 +110,7 @@ function App() {
       </AppConatiner>
       ) : (
         <div>
-          <h3>이름 관심있는 드라마 종류, 역사 지식을 얼마나 아는지를 입력해주세요</h3>
+          <h3>이름과 관심있는 분야를 입력해주세요</h3>
           <div>이름</div>
           <input type="text" value={user_name} onChange={handleUserNameInput}/>
           <br/>
