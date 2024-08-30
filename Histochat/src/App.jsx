@@ -6,7 +6,7 @@ import {db} from './api/firebasemodule';
 import {doc, addDoc, setDoc, collection } from "firebase/firestore";
 
 function App() {
-  const persona = "나폴레옹";
+  const persona = "알렌산드로스";
   // const learning_obejctive = `${persona}에게 개혁을 추진하면서 했던 선택들과 그 과정에서 고민했던 것들을 듣고 이유 알아보기`;
   const learning_obejctive = `${persona}겪었던 역경과 그 어려움 속에서 왜 이런 선택을 했고 무슨 생각으로 했으며, 그 결과는 무엇이었는지, 그걸 어떻게 극복했는지 이해해보자.`;
   // var [specific_learning_objective, setSpecificLearningObjective] = useState({
@@ -76,7 +76,7 @@ function App() {
       setDoc(doc(db, user_name + "Advanced", "Info"), {
         name: user_name,
         interest: user_interest,
-        knowledge: learning_obejctive,
+        knowledge: "",
       });
       handleClickAPICall("안녕하세요");
     }
