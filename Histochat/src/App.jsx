@@ -47,6 +47,7 @@ function App() {
         handleChat(userInput, message);
         addDoc(collection(db, user_name+"Advanced"), {
         chat_number : (chatlog.length)/2,
+        timestamp : new Date(),
         input: userInput,
         output: message,
       });
